@@ -1,0 +1,9 @@
+{
+  "name": "Malevolent Shrine Register",
+  "short_name": "Shrine",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a"
+}
