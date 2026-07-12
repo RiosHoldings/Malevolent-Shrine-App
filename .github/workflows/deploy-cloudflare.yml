@@ -1,4 +1,4 @@
-name: Deploy Malevolent Shrine
+name: Deploy to Cloudflare Pages
 
 on:
   push:
@@ -6,14 +6,13 @@ on:
       - main
   workflow_dispatch: 
 
+permissions:
+  contents: read
+
 jobs:
   deploy:
-    name: Deploy to Cloudflare Pages
+    name: Deploy Malevolent Shrine
     runs-on: ubuntu-latest
-
-    permissions: 
-      contents: read
-      deployments: write
 
     steps:
     - name: Checkout respository
@@ -24,5 +23,5 @@ jobs:
       with:
         apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN}}
         accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID}}
+        wranglerVersion: "4"
         command: pages deploy . --project-name=malevolent-shrine-app --branch=main
-        gitHubToken: ${{ secrets.GITHUB_TOKEN  }}
