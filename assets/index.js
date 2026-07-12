@@ -2859,7 +2859,7 @@ function renderActiveOrderCard(order) {
               letter-spacing:1px;
             "
           >
-            📍 ${escapeHTML(
+            📍 ${escapeHtml(
               String(order.site || "Not selected")
                 .toUpperCase(),
             )}
@@ -3186,7 +3186,7 @@ function renderOrderDetail() {
               "
             >
               📍 DELIVERY SITE:
-              ${escapeHTML(
+              ${escapeHtml(
                   String(order.site || "Not selected")
                     .toUpperCase(),
               )}
@@ -3738,7 +3738,7 @@ root.addEventListener("click", async (event) => {
     }
 
     case "select-site": {
-      const selectSite =
+      const selectedSite =
         control.dataset.site;
 
       if (
