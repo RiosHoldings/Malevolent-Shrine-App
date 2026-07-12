@@ -4395,6 +4395,7 @@ async function confirmFulfillment() {
       ) * quantity;
 
     await sendItemFulfilledNotification(
+      order.site,
       target.orderId,
       order.customerName,
       state.employeeBadge,
@@ -4859,27 +4860,22 @@ function parsePossibleJson(
   }
 }
 
-async function sendDiscord(
-  payload,
-) {
+async function sendDiscord(payload, site) {
   try {
-    const response = await fetch(
-      API.discord,
-      {
+    const response = await fetch(API.discord, {
         method: "POST",
 
-        credentials:
-          "same-origin",
-
         headers: {
-          "Content-Type":
-            "application/json",
+          "Content-Type": "application/json",
         },
 
-        body:
-          JSON.stringify(payload),
-      },
-    );
+        credentials: "same-origin",
+        
+        body:JSON.stringify({
+            site,
+            payload
+      }),
+      });
 
     if (
       !response.ok &&
@@ -4921,7 +4917,7 @@ async function sendNewOrderNotification(
     .join("\n")
     .slice(0, 1000);
 
-  return sendDiscord({
+  return sendDiscord(order.site, {
     embeds: [
       {
         title:
@@ -5081,6 +5077,7 @@ async function sendOrderCompleteNotification(
 }
 
 async function sendItemFulfilledNotification(
+  site,
   orderId,
   customerName,
   badge,
@@ -5088,7 +5085,7 @@ async function sendItemFulfilledNotification(
   quantity,
   value,
 ) {
-  return sendDiscord({
+  return sendDiscord(site, {
     embeds: [
       {
         title:
