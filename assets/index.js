@@ -4860,39 +4860,59 @@ function parsePossibleJson(
   }
 }
 
-async function sendDiscord(payload, site) {
+async function sendDiscord(site, payload) {
   try {
-    const response = await fetch(API.discord, {
+    const response = await fetch(
+      API.discord, 
+      {
         method: "POST",
 
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type":
+           "application/json",
         },
 
         credentials: "same-origin",
         
-        body:JSON.stringify({
+        body: JSON.stringify({
             site,
-            payload
-      }),
-      });
+            payload,
+        }),
+      },
+    );
+
+    const result = 
+      await readJsonSafely(response);
 
     if (
       !response.ok &&
-      response.status !== 404
+     result?.success === false
     ) {
-      console.warn(
-        "Discord notification returned status",
-        response.status,
+      console.error(
+        "Discord notification failed:",
+        results?.error ||
+        `Status ${response.status}`,
       );
+
+      return false;
     }
+
+    console.log(
+      `Discord notification sent to $(site).`,
+    );
+
+    return true;
   } catch (error) {
-    console.warn(
-      "Discord notification skipped:",
+    console.error(
+      "Discord notification failed:",
       error,
     );
+
+    return false;
+    }
   }
-}
+
+
 
 async function sendNewOrderNotification(
   order,
@@ -5022,7 +5042,7 @@ async function sendOrderCompleteNotification(
       .join("\n")
       .slice(0, 1024);
 
-  return sendDiscord({
+  return sendDiscord(order.site, {
     embeds: [
       {
         title:
