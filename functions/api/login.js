@@ -1,20 +1,21 @@
 const encoder = new TextEncoder();
 
-function constantTimeEqual(valueA, valueB) {
-  const a = encoder.encode(String(valueA));
-  const b = encoder.encode(String(valueB));
+const SESSION_COOKIE = "__Host-malevolent_session";
+const SESSION_LIFETIME_SECONDS = 8 * 60 * 60;
 
-  let difference = a.length ^ b.length;
-  const maxLength = Math.max(a.length, b.length);
-
-  for (let i = 0; i < maxLength; i += 1) {
-    difference |= (a[i] || 0) ^ (b[i] || 0);
-  }
-
-  return difference === 0;
+function json(data, status = 200, extraHeaders = {}) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "no-store",
+      "X-Content-Type-Options": "nosniff",
+      ...extraHeaders,
+    },
+  });
 }
 
-function toBase64Url(bytes) {
+function bytesToBase64Url(bytes) {
   let binary = "";
 
   for (const byte of bytes) {
@@ -27,64 +28,144 @@ function toBase64Url(bytes) {
     .replace(/=+$/g, "");
 }
 
-async function createSessionToken(secret) {
-  const payload = {
-    role: "employee",
-    expiresAt: Date.now() + 8 * 60 * 60 * 1000
-  };
+function textToBase64Url(value) {
+  return bytesToBase64Url(
+    encoder.encode(value),
+  );
+}
 
-  const encodedPayload = toBase64Url(
-    encoder.encode(JSON.stringify(payload))
+async function sha256(value) {
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    encoder.encode(value),
   );
 
-  const signingKey = await crypto.subtle.importKey(
+  return new Uint8Array(digest);
+}
+
+function constantTimeEqual(left, right) {
+  if (left.length !== right.length) {
+    return false;
+  }
+
+  let difference = 0;
+
+  for (
+    let index = 0;
+    index < left.length;
+    index += 1
+  ) {
+    difference |=
+      left[index] ^ right[index];
+  }
+
+  return difference === 0;
+}
+
+async function passwordsMatch(
+  submittedPassword,
+  configuredPassword,
+) {
+  const [
+    submittedHash,
+    configuredHash,
+  ] = await Promise.all([
+    sha256(submittedPassword),
+    sha256(configuredPassword),
+  ]);
+
+  return constantTimeEqual(
+    submittedHash,
+    configuredHash,
+  );
+}
+
+async function importSigningKey(secret) {
+  return crypto.subtle.importKey(
     "raw",
     encoder.encode(secret),
     {
       name: "HMAC",
-      hash: "SHA-256"
+      hash: "SHA-256",
     },
     false,
-    ["sign"]
+    ["sign"],
   );
-
-  const signature = await crypto.subtle.sign(
-    "HMAC",
-    signingKey,
-    encoder.encode(encodedPayload)
-  );
-
-  return `${encodedPayload}.${toBase64Url(new Uint8Array(signature))}`;
 }
 
-function jsonResponse(data, status = 200, additionalHeaders = {}) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "no-store",
-      ...additionalHeaders
-    }
-  });
+async function createSessionToken({
+  badge,
+  secret,
+}) {
+  const issuedAt = Math.floor(
+    Date.now() / 1000,
+  );
+
+  const payload = {
+    badge,
+    role: "employee",
+    iat: issuedAt,
+    exp:
+      issuedAt +
+      SESSION_LIFETIME_SECONDS,
+    nonce: crypto.randomUUID(),
+  };
+
+  const encodedPayload =
+    textToBase64Url(
+      JSON.stringify(payload),
+    );
+
+  const signingKey =
+    await importSigningKey(secret);
+
+  const signature =
+    await crypto.subtle.sign(
+      "HMAC",
+      signingKey,
+      encoder.encode(encodedPayload),
+    );
+
+  return (
+    `${encodedPayload}.` +
+    bytesToBase64Url(
+      new Uint8Array(signature),
+    )
+  );
 }
 
 export async function onRequest(context) {
   const { request, env } = context;
 
   if (request.method !== "POST") {
-    return jsonResponse(
-      { success: false, error: "Method not allowed." },
+    return json(
+      {
+        success: false,
+        error: "Method not allowed.",
+      },
       405,
-      { Allow: "POST" }
+      {
+        Allow: "POST",
+      },
     );
   }
 
-  if (!env.EMPLOYEE_PASSWORD || !env.SESSION_SECRET) {
-    console.error("Required login secrets are missing.");
+  if (
+    !env.EMPLOYEE_PASSWORD ||
+    !env.SESSION_SECRET
+  ) {
+    console.error(
+      "Missing EMPLOYEE_PASSWORD or " +
+      "SESSION_SECRET Cloudflare secret.",
+    );
 
-    return jsonResponse(
-      { success: false, error: "Login service is not configured." },
-      500
+    return json(
+      {
+        success: false,
+        error:
+          "Employee login is not configured.",
+      },
+      500,
     );
   }
 
@@ -93,34 +174,89 @@ export async function onRequest(context) {
   try {
     body = await request.json();
   } catch {
-    return jsonResponse(
-      { success: false, error: "Invalid request body." },
-      400
+    return json(
+      {
+        success: false,
+        error:
+          "Request body must be valid JSON.",
+      },
+      400,
     );
   }
 
-  const password =
-    typeof body.password === "string" ? body.password : "";
+  const badge = String(
+    body?.badge ?? "",
+  ).trim();
 
-  if (!constantTimeEqual(password, env.EMPLOYEE_PASSWORD)) {
-    return jsonResponse(
-      { success: false, error: "Incorrect employee password." },
-      401
+  const password = String(
+    body?.password ?? "",
+  );
+
+  if (!/^\d{1,20}$/.test(badge)) {
+    return json(
+      {
+        success: false,
+        error:
+          "Enter a valid badge number.",
+      },
+      400,
     );
   }
 
-  const sessionToken = await createSessionToken(env.SESSION_SECRET);
+  if (
+    !password ||
+    password.length > 256
+  ) {
+    return json(
+      {
+        success: false,
+        error:
+          "Enter a valid employee password.",
+      },
+      400,
+    );
+  }
 
-  return jsonResponse(
+  const validPassword =
+    await passwordsMatch(
+      password,
+      env.EMPLOYEE_PASSWORD,
+    );
+
+  if (!validPassword) {
+    return json(
+      {
+        success: false,
+        error:
+          "Incorrect employee password.",
+      },
+      401,
+    );
+  }
+
+  const sessionToken =
+    await createSessionToken({
+      badge,
+      secret: env.SESSION_SECRET,
+    });
+
+  return json(
     {
       success: true,
-      message: "Employee login successful."
+      badge,
+      expiresIn:
+        SESSION_LIFETIME_SECONDS,
     },
     200,
     {
-      "Set-Cookie":
-        `malevolent_session=${sessionToken}; ` +
-        "HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=28800"
-    }
+      "Set-Cookie": [
+        `${SESSION_COOKIE}=${sessionToken}`,
+        "Path=/",
+        `Max-Age=${SESSION_LIFETIME_SECONDS}`,
+        "HttpOnly",
+        "Secure",
+        "SameSite=Strict",
+      ].join("; "),
+    },
   );
 }
