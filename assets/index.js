@@ -613,7 +613,7 @@ const CATALOG_RAW = [
       ["Leather Duffle Bag", 1840],
       ["Mountain Backpack", 2200],
       ["Tactical Backpack", 2200],
-      ["Combat Backpack (Desert)", 4,000],
+      ["Combat Backpack (Desert)", 4000],
     ],
   ],
   [
