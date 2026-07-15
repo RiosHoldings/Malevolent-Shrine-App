@@ -82,6 +82,8 @@ const CATALOG_RAW = [
       ["KA-74 (Green)", 10260],
       ["KA-74 (Black)", 10260],
       ["KAS-74U", 10260],
+      ["SCR-17 (Tan)", 15,000],
+      ["SCR-17 (Black)", 15,000],
     ],
   ],
   [
@@ -146,6 +148,7 @@ const CATALOG_RAW = [
       ["Hockey Stick", 156],
       ["Baton", 500],
       ["Mace", 156],
+      ["Brass Knuckles (Men at Arms)", 3,000],
     ],
   ],
   [
@@ -168,6 +171,8 @@ const CATALOG_RAW = [
       ["Marksman Scope", 1370],
       ["Hunting Scope", 1370],
       ["Long Range Scope", 1370],
+      ["Holo Sight (Tan)", 3,500],
+      ["Holo Sight (Black)", 3,500],
     ],
   ],
   [
@@ -190,6 +195,8 @@ const CATALOG_RAW = [
       ["LAR Buttstock (Polymer)", 1370],
       ["M4 Buttstock (CQB)", 1370],
       ["M4 Buttstock (MP)", 1370],
+      ["SCR Buttstock", 2,500], 
+      ["SCR Precision Buttstock", 3,500],
     ],
   ],
   [
@@ -222,6 +229,7 @@ const CATALOG_RAW = [
       ["Vaiga Mag", 2740],
       ["Standard Magazines", 2740],
       ["Drum Magazines", 2740],
+      ["20RD SCR-17 Magazine", 3,500],
     ],
   ],
   [
@@ -380,6 +388,8 @@ const CATALOG_RAW = [
       ["Cowboy Hat", 925],
       ["Fox Headdress", 1840],
       ["Bear Headdress", 2200],
+      ["Military Cap (BDU)", 2,500],
+      ["Military Cap (Desert)", 2,500],
       ["Morozka", 925],
       ["NBC Hood", 2200],
       ["Santa Hat", 925],
@@ -408,6 +418,8 @@ const CATALOG_RAW = [
       ["Assault Helmet Visor", 925],
       ["Enduro Helmet Mouthpiece", 925],
       ["Enduro Helmet Visor", 925],
+      ["T65 Helmet (Olive)", 4,000],
+      ["T65 Helmet (Tan)", 4,000],
     ],
   ],
   [
@@ -506,6 +518,7 @@ const CATALOG_RAW = [
       ["Chestplate", 7330],
       ["Field Vest", 2200],
       ["Plate Carrier", 7330],
+      ["Plate Carrier (Desert)", 10,000],
       ["Stab Vest", 1840],
       ["Tactical Vest", 2200],
       ["Hunter Vest", 2200],
@@ -600,6 +613,7 @@ const CATALOG_RAW = [
       ["Leather Duffle Bag", 1840],
       ["Mountain Backpack", 2200],
       ["Tactical Backpack", 2200],
+      ["Combat Backpack (Desert)", 4,000],
     ],
   ],
   [
