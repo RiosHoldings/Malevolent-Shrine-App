@@ -217,9 +217,9 @@ const CATALOG_RAW = [
       ["5RD CR-527 Mag", 2740],
       ["5RD SSG82 Mag", 2740],
       ["7RD Kolt 1911 Mag", 550],
-      ["8RD P1 Mag", 550]
+      ["8RD P1 Mag", 550],
       ["9RD Deagle Mag", 550],
-      ["10RD MK II Mag", 550]
+      ["10RD MK II Mag", 550],
       ["10RD CR-550 Mag", 2740],
       ["10RD VS-89 Mag", 2740],
       ["10RD VSD Mag", 2740],
@@ -379,7 +379,7 @@ const CATALOG_RAW = [
     "🪵",
     "WOOD & SHEET METAL",
     [
-      ["Full Truck Load (Truck Included)", 47,438],
+      ["Full Truck Load (Truck Included)", 47438],
       ["Full Truck Load (Truck Not Included)", 23438],
       ["Full Truck w/ Sheet Metal (Truck Included)", 55,250],
       ["Full Truck w/ Sheet Metal (Truck Not Included)", 31250],
