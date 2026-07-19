@@ -365,7 +365,7 @@ const CATALOG_RAW = [
       ["4-Dial Lock", 1563],
       ["Barbed Wire", 781],
       ["Cable Reel", 235],
-      ["Construction Light", 391]
+      ["Construction Light", 391],
       ["Flag", 3125],
       ["Full Generator Kit", 1563],
       ["Generator", 313],
