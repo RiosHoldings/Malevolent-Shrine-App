@@ -390,7 +390,7 @@ const CATALOG_RAW = [
     [
       ["Full Truck Load (Truck Included)", 47438],
       ["Full Truck Load (Truck Not Included)", 23438],
-      ["Full Truck w/ Sheet Metal (Truck Included)", 55,250],
+      ["Full Truck w/ Sheet Metal (Truck Included)", 55250],
       ["Full Truck w/ Sheet Metal (Truck Not Included)", 31250],
       ["Logs (per log)", 313],
       ["Planks (Stack)", 781],
@@ -413,7 +413,7 @@ const CATALOG_RAW = [
       ["Fox Headdress", 1840],
       ["Bear Headdress", 2200],
       ["Leaf Crown", 925],
-      ["Leather Hat", 925]
+      ["Leather Hat", 925],
       ["Military Cap (BDU)", 2500],
       ["Military Cap (Desert)", 2500],
       ["Morozka", 925],
