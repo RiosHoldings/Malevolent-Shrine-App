@@ -318,7 +318,7 @@ const CATALOG_RAW = [
       ["Meth (Rice)", 563],
       ["Mushrooms (Drug)", 125],
       ["Weed", 141],
-      ["Weed Seeds", 156],
+      ["Weed Seeds", 781],
     ],
   ],
   [
